@@ -31,8 +31,9 @@ public class Patient {
     private String firstName;
     private String lastName;
 
-    private String amountPaid;
+    private String totalAmount;
     private boolean pendingAmount;
+    private String amountDue;
 
     @Indexed(unique = true)
     private String email;
