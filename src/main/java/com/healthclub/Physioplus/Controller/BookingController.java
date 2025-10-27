@@ -31,7 +31,7 @@ public class BookingController {
      * @param booking The booking data from the request body.
      * @return The created booking.
      */
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<Bookings> createBooking(@RequestBody Bookings booking) {
         try {
             Bookings newBooking = bookingService.createBooking(booking);
