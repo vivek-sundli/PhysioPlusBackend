@@ -1,5 +1,6 @@
 package com.healthclub.Physioplus.config;
 
+import com.healthclub.Physioplus.Repository.PatientRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,8 +15,8 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
  */
 @Configuration
 @EnableMongoRepositories(
-        basePackages = "com.healthclub.Physioplus.Repository.PatientRepository", // CRITICAL: Links this config *only* to PatientRepository
-        mongoTemplateRef = "patientTemplate" // Links to the "patientTemplate" bean below
+        basePackageClasses = PatientRepository.class,
+        mongoTemplateRef = "patientTemplate"
 )
 public class PatientMongoConfig {
 

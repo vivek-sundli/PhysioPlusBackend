@@ -1,6 +1,6 @@
 package com.healthclub.Physioplus.config;
-// UPDATED package
- // UPDATED import
+
+import com.healthclub.Physioplus.Repository.PaymentRepository;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,8 +16,8 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
  */
 @Configuration
 @EnableMongoRepositories(
-        basePackages = "com.healthclub.Physioplus.Repository.PaymentRepository", // UPDATED to use your base package string
-        mongoTemplateRef = "paymentTemplate" // Links to the "paymentTemplate" bean below
+        basePackageClasses = PaymentRepository.class,
+        mongoTemplateRef = "paymentTemplate"
 )
 public class PaymentMongoConfig {
 

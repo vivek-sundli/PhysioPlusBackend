@@ -30,7 +30,7 @@ public class Bookings {
     private LocalDateTime appointmentTime;
     private BookingStatus status;
     private String notes;
-    private Enum mode;
+    private Mode mode;
     private String mailId;
 
     // Constructors
