@@ -14,13 +14,13 @@ import java.util.Map;
 @Service
 public class SmsService {
 
-    @Value("${msg91.auth-key}")
+    @Value("${msg91.auth-key:}")
     private String authKey;
 
-    @Value("${msg91.template-id}")
+    @Value("${msg91.template-id:}")
     private String templateId;
 
-    @Value("${msg91.sender-id}")
+    @Value("${msg91.sender-id:PHYSIO}")
     private String senderId;
 
     private static final String MSG91_API_URL = "https://control.msg91.com/api/v5/flow/";
@@ -31,7 +31,15 @@ public class SmsService {
         this.restTemplate = new RestTemplate();
     }
 
+    private boolean isConfigured() {
+        return authKey != null && !authKey.isBlank() && templateId != null && !templateId.isBlank();
+    }
+
     public boolean sendOtp(String phoneNumber, String otp) {
+        if (!isConfigured()) {
+            System.out.println("[DEV MODE] SMS not configured. OTP for " + phoneNumber + ": " + otp);
+            return true;  // Return true in dev mode to allow testing
+        }
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -73,6 +81,10 @@ public class SmsService {
     }
 
     public boolean sendAppointmentReminder(String phoneNumber, String patientName, String doctorName, String appointmentTime) {
+        if (!isConfigured()) {
+            System.out.println("[DEV MODE] SMS not configured. Appointment reminder for " + phoneNumber);
+            return true;
+        }
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);

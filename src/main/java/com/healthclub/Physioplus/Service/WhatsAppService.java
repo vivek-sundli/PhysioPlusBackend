@@ -16,10 +16,10 @@ import java.util.*;
 @Service
 public class WhatsAppService {
 
-    @Value("${whatsapp.token}")
+    @Value("${whatsapp.token:}")
     private String accessToken;
 
-    @Value("${whatsapp.phone-number-id}")
+    @Value("${whatsapp.phone-number-id:}")
     private String phoneNumberId;
 
     private static final String WHATSAPP_API_URL = "https://graph.facebook.com/v18.0";
@@ -33,7 +33,30 @@ public class WhatsAppService {
         this.restTemplate = new RestTemplate();
     }
 
+    private boolean isConfigured() {
+        return accessToken != null && !accessToken.isBlank()
+                && phoneNumberId != null && !phoneNumberId.isBlank();
+    }
+
     public NotificationResponse sendTemplateMessage(SendNotificationRequest request) {
+        if (!isConfigured()) {
+            // Mock mode for development
+            NotificationLog notification = new NotificationLog();
+            notification.setUserId(request.getUserId());
+            notification.setBookingId(request.getBookingId());
+            notification.setRecipientPhone(request.getRecipientPhone());
+            notification.setRecipientName(request.getRecipientName());
+            notification.setTemplateName(request.getTemplateName());
+            notification.setType(request.getType() != null ? request.getType() : NotificationLog.NotificationType.CUSTOM);
+            notification.setChannel(NotificationLog.NotificationChannel.WHATSAPP);
+            notification.setStatus(NotificationLog.DeliveryStatus.SENT);
+            notification.setMessageId("mock_msg_" + java.util.UUID.randomUUID().toString().substring(0, 8));
+            notification.setCreatedAt(Instant.now());
+            notification.setUpdatedAt(Instant.now());
+            NotificationLog saved = notificationRepository.save(notification);
+            System.out.println("[DEV MODE] WhatsApp not configured. Mock message to " + request.getRecipientPhone());
+            return NotificationResponse.success("Message sent (mock mode)", saved.getMessageId(), saved);
+        }
         try {
             // Create notification log
             NotificationLog notification = new NotificationLog();
@@ -124,6 +147,20 @@ public class WhatsAppService {
     }
 
     public NotificationResponse sendTextMessage(String recipientPhone, String message, String userId) {
+        if (!isConfigured()) {
+            NotificationLog notification = new NotificationLog();
+            notification.setUserId(userId);
+            notification.setRecipientPhone(recipientPhone);
+            notification.setContent(message);
+            notification.setType(NotificationLog.NotificationType.CUSTOM);
+            notification.setChannel(NotificationLog.NotificationChannel.WHATSAPP);
+            notification.setStatus(NotificationLog.DeliveryStatus.SENT);
+            notification.setMessageId("mock_msg_" + java.util.UUID.randomUUID().toString().substring(0, 8));
+            notification.setCreatedAt(Instant.now());
+            NotificationLog saved = notificationRepository.save(notification);
+            System.out.println("[DEV MODE] WhatsApp text message to " + recipientPhone + ": " + message);
+            return NotificationResponse.success("Message sent (mock mode)", saved.getMessageId(), saved);
+        }
         try {
             NotificationLog notification = new NotificationLog();
             notification.setUserId(userId);

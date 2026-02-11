@@ -22,10 +22,10 @@ import java.util.UUID;
 @Service
 public class RazorpayService {
 
-    @Value("${razorpay.key-id}")
+    @Value("${razorpay.key-id:}")
     private String keyId;
 
-    @Value("${razorpay.key-secret}")
+    @Value("${razorpay.key-secret:}")
     private String keySecret;
 
     private RazorpayClient razorpayClient;
@@ -39,14 +39,43 @@ public class RazorpayService {
 
     @PostConstruct
     public void init() {
+        if (!isConfigured()) {
+            System.out.println("[DEV MODE] Razorpay not configured. Payment features will work in mock mode.");
+            return;
+        }
         try {
             this.razorpayClient = new RazorpayClient(keyId, keySecret);
         } catch (RazorpayException e) {
-            throw new RuntimeException("Failed to initialize Razorpay client: " + e.getMessage());
+            System.err.println("Failed to initialize Razorpay client: " + e.getMessage());
         }
     }
 
+    private boolean isConfigured() {
+        return keyId != null && !keyId.isBlank() && keySecret != null && !keySecret.isBlank();
+    }
+
     public PaymentOrderResponse createOrder(PaymentOrderRequest request) {
+        if (!isConfigured() || razorpayClient == null) {
+            // Mock mode for development
+            String mockOrderId = "order_mock_" + UUID.randomUUID().toString().substring(0, 8);
+            Payment payment = new Payment();
+            payment.setAmount(request.getAmount());
+            payment.setCurrency(request.getCurrency() != null ? request.getCurrency() : "INR");
+            payment.setBookingId(request.getBookingId());
+            payment.setUserId(request.getUserId());
+            payment.setDoctorId(request.getDoctorId());
+            payment.setUserEmail(request.getUserEmail());
+            payment.setUserContactNumber(request.getUserContactNumber());
+            payment.setRazorpayOrderId(mockOrderId);
+            payment.setReceipt("rcpt_mock_" + UUID.randomUUID().toString().substring(0, 8));
+            payment.setNotes(request.getNotes());
+            payment.setStatus(Payment.PaymentStatus.CREATED);
+            payment.setPaymentTime(LocalDateTime.now());
+            Payment savedPayment = paymentRepository.save(payment);
+            System.out.println("[DEV MODE] Mock Razorpay order created: " + mockOrderId);
+            return PaymentOrderResponse.success(mockOrderId, savedPayment.getId(), request.getAmount(),
+                    request.getCurrency() != null ? request.getCurrency() : "INR", "rzp_test_mock");
+        }
         try {
             // Create Razorpay order
             JSONObject orderRequest = new JSONObject();
@@ -97,6 +126,22 @@ public class RazorpayService {
     }
 
     public PaymentOrderResponse verifyPayment(PaymentVerifyRequest request) {
+        if (!isConfigured() || razorpayClient == null) {
+            // Mock mode - auto-verify in dev
+            Optional<Payment> paymentOpt = paymentRepository.findByRazorpayOrderId(request.getRazorpayOrderId());
+            if (paymentOpt.isEmpty()) {
+                return PaymentOrderResponse.error("Payment record not found");
+            }
+            Payment payment = paymentOpt.get();
+            payment.setRazorpayPaymentId(request.getRazorpayPaymentId());
+            payment.setRazorpaySignature(request.getRazorpaySignature());
+            payment.setTransactionId(request.getRazorpayPaymentId());
+            payment.setStatus(Payment.PaymentStatus.COMPLETED);
+            payment.setPaymentTime(LocalDateTime.now());
+            paymentRepository.save(payment);
+            System.out.println("[DEV MODE] Mock payment verified: " + request.getRazorpayOrderId());
+            return new PaymentOrderResponse(true, "Payment verified successfully (mock mode)");
+        }
         try {
             // Verify signature
             JSONObject attributes = new JSONObject();

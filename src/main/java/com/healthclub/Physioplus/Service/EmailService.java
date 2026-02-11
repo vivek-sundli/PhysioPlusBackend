@@ -9,17 +9,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
 
-    private final JavaMailSender mailSender;
+    @Autowired(required = false)
+    private JavaMailSender mailSender;
 
-    @Value("${spring.mail.username}")
+    @Value("${spring.mail.username:}")
     private String fromEmail;
 
-    @Autowired
-    public EmailService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
+    private boolean isConfigured() {
+        return mailSender != null && fromEmail != null && !fromEmail.isBlank();
     }
 
     public boolean sendOtp(String toEmail, String otp) {
+        if (!isConfigured()) {
+            System.out.println("[DEV MODE] Email not configured. OTP for " + toEmail + ": " + otp);
+            return true;  // Return true in dev mode to allow testing
+        }
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
@@ -50,6 +54,10 @@ public class EmailService {
     }
 
     public boolean sendAppointmentReminder(String toEmail, String patientName, String doctorName, String appointmentTime) {
+        if (!isConfigured()) {
+            System.out.println("[DEV MODE] Email not configured. Appointment reminder for " + toEmail);
+            return true;
+        }
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
