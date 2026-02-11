@@ -22,18 +22,18 @@ public class Payment {
     private String userId;          // ID of the user making the payment
     private String userContactNumber; // Contact number of the user
     private String userEmail;         // Email of the user
-    private double amount;          // The amount paid
+    private double amount;          // The amount paid (in INR)
+    private String currency;        // Currency code (default: INR)
 
     // --- Added Fields for better tracking ---
 
     /**
      * The ID of the booking this payment is associated with.
-     * This is crucial for linking payments to appointments.
      */
     private String bookingId;
 
     /**
-     * A unique transaction ID from the payment gateway (e.g., Stripe, Razorpay).
+     * A unique transaction ID from the payment gateway.
      */
     private String transactionId;
 
@@ -42,7 +42,49 @@ public class Payment {
      */
     private LocalDateTime paymentTime;
 
-    // --- Getters and Setters ---
+    // --- Razorpay Integration Fields ---
 
+    /**
+     * Razorpay order ID (order_XXXXX)
+     */
+    private String razorpayOrderId;
+
+    /**
+     * Razorpay payment ID (pay_XXXXX) - populated after successful payment
+     */
+    private String razorpayPaymentId;
+
+    /**
+     * Razorpay signature for payment verification
+     */
+    private String razorpaySignature;
+
+    /**
+     * Payment status: PENDING, CREATED, COMPLETED, FAILED, REFUNDED
+     */
+    private PaymentStatus status;
+
+    /**
+     * Receipt number for the payment
+     */
+    private String receipt;
+
+    /**
+     * Any notes or description for the payment
+     */
+    private String notes;
+
+    public Payment() {
+        this.status = PaymentStatus.PENDING;
+        this.currency = "INR";
+    }
+
+    public enum PaymentStatus {
+        PENDING,    // Initial state
+        CREATED,    // Razorpay order created
+        COMPLETED,  // Payment successful
+        FAILED,     // Payment failed
+        REFUNDED    // Payment refunded
+    }
 }
 

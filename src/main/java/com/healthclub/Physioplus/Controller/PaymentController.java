@@ -1,7 +1,12 @@
 package com.healthclub.Physioplus.Controller;
 
+import com.healthclub.Physioplus.Dto.PaymentOrderRequest;
+import com.healthclub.Physioplus.Dto.PaymentOrderResponse;
+import com.healthclub.Physioplus.Dto.PaymentVerifyRequest;
 import com.healthclub.Physioplus.Model.Payment;
 import com.healthclub.Physioplus.Service.PaymentService;
+import com.healthclub.Physioplus.Service.RazorpayService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,13 +19,16 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/payments")
+@CrossOrigin(origins = "*")
 public class PaymentController {
 
     private final PaymentService paymentService;
+    private final RazorpayService razorpayService;
 
     @Autowired
-    public PaymentController(PaymentService paymentService) {
+    public PaymentController(PaymentService paymentService, RazorpayService razorpayService) {
         this.paymentService = paymentService;
+        this.razorpayService = razorpayService;
     }
 
     /**
@@ -82,6 +90,74 @@ public class PaymentController {
             // Catches invalid status strings
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    // ==================== Razorpay Integration Endpoints ====================
+
+    /**
+     * POST /api/payments/create-order
+     * Create a new Razorpay order for payment
+     *
+     * Request body:
+     * {
+     *   "amount": 500.00,
+     *   "currency": "INR",
+     *   "bookingId": "booking123",
+     *   "userId": "user123",
+     *   "doctorId": "doctor123",
+     *   "userEmail": "user@example.com",
+     *   "userContactNumber": "+919876543210",
+     *   "notes": "Consultation fee"
+     * }
+     */
+    @PostMapping("/create-order")
+    public ResponseEntity<PaymentOrderResponse> createOrder(@Valid @RequestBody PaymentOrderRequest request) {
+        PaymentOrderResponse response = razorpayService.createOrder(request);
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    /**
+     * POST /api/payments/verify
+     * Verify Razorpay payment after completion
+     *
+     * Request body:
+     * {
+     *   "razorpayOrderId": "order_xxx",
+     *   "razorpayPaymentId": "pay_xxx",
+     *   "razorpaySignature": "signature_xxx"
+     * }
+     */
+    @PostMapping("/verify")
+    public ResponseEntity<PaymentOrderResponse> verifyPayment(@Valid @RequestBody PaymentVerifyRequest request) {
+        PaymentOrderResponse response = razorpayService.verifyPayment(request);
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    /**
+     * GET /api/payments/order/{orderId}
+     * Get payment details by Razorpay order ID
+     */
+    @GetMapping("/order/{orderId}")
+    public ResponseEntity<Payment> getPaymentByOrderId(@PathVariable String orderId) {
+        return razorpayService.getPaymentByOrderId(orderId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * GET /api/payments/booking/{bookingId}
+     * Get all payments for a specific booking
+     */
+    @GetMapping("/booking/{bookingId}")
+    public ResponseEntity<List<Payment>> getPaymentsByBookingId(@PathVariable String bookingId) {
+        List<Payment> payments = paymentService.getPaymentsByBookingId(bookingId);
+        return ResponseEntity.ok(payments);
     }
 }
 

@@ -76,4 +76,13 @@ public class PaymentService {
     public List<Payment> getPaymentsByDoctorId(String doctorId) {
         return paymentRepository.findByDoctorId(doctorId);
     }
+
+    /**
+     * Retrieves all payments for a specific booking.
+     * @param bookingId The ID of the booking.
+     * @return A list of payments.
+     */
+    public List<Payment> getPaymentsByBookingId(String bookingId) {
+        return paymentRepository.findByBookingId(bookingId);
+    }
 }
