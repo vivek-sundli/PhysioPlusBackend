@@ -119,4 +119,18 @@ public class BookingController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    /**
+     * PUT /api/bookings/{id}/complete
+     * Marks a booking as completed.
+     */
+    @PutMapping("/{id}/complete")
+    public ResponseEntity<Bookings> completeBooking(@PathVariable("id") String id) {
+        Bookings updatedBooking = bookingService.completeBooking(id);
+        if (updatedBooking != null) {
+            return new ResponseEntity<>(updatedBooking, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }

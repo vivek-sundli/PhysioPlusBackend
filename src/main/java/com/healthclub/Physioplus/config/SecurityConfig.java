@@ -34,14 +34,14 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Allow origins from environment variable or default to wildcard for
-        // development simplicity
         String allowedOriginsEnv = System.getenv("ALLOWED_ORIGINS");
-        List<String> allowedOrigins = allowedOriginsEnv != null
-                ? Arrays.asList(allowedOriginsEnv.split(","))
-                : List.of("*"); // Fallback to allow all if not set (for easier initial testing)
-
-        configuration.setAllowedOrigins(allowedOrigins);
+        if (allowedOriginsEnv != null) {
+            configuration.setAllowedOrigins(Arrays.asList(allowedOriginsEnv.split(",")));
+        } else {
+            // allowCredentials(true) is incompatible with wildcard origins.
+            // Default to localhost:3000 for development.
+            configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://127.0.0.1:3000"));
+        }
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration
                 .setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"));

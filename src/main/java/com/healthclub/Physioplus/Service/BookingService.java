@@ -119,6 +119,21 @@ public class BookingService {
             booking.setStatus(BookingStatus.CANCELLED);
             return bookingRepository.save(booking);
         }
-        return null; // Or throw an exception
+        return null;
+    }
+
+    /**
+     * Updates a booking's status to COMPLETED.
+     * @param id The ID of the booking to complete.
+     * @return The updated booking, or null if not found.
+     */
+    public Bookings completeBooking(String id) {
+        Optional<Bookings> bookingOpt = bookingRepository.findById(id);
+        if (bookingOpt.isPresent()) {
+            Bookings booking = bookingOpt.get();
+            booking.setStatus(BookingStatus.COMPLETED);
+            return bookingRepository.save(booking);
+        }
+        return null;
     }
 }

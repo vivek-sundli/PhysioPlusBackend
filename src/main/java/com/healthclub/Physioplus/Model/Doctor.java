@@ -27,11 +27,17 @@ public class Doctor {
 
     private String phone;
     private String name;
-    private String specialization;
+    private String title;              // e.g., "PT, MPT (Ortho)"
+    private String avatar;             // Profile image URL for frontend
+    private String specialization;     // Single specialization (legacy)
+    private List<String> specializations; // Multiple specializations for frontend
     private String qualification;
     private Integer experienceYears;
     private String bio;
     private String profileImageUrl;
+    private List<String> formats;      // "Online", "Clinic", "Home Visit"
+    private String location;           // Display location for frontend
+    private List<String> availableSlots; // Time slots like "09:00", "10:30"
 
     // Onboarding Documents
     private String idProofUrl;           // Government ID

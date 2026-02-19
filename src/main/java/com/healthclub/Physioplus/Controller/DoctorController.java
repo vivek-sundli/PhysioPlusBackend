@@ -1,6 +1,7 @@
 package com.healthclub.Physioplus.Controller;
 
 import com.healthclub.Physioplus.Dto.PageResponse;
+import com.healthclub.Physioplus.Dto.TherapistView;
 import com.healthclub.Physioplus.Model.Doctor;
 import com.healthclub.Physioplus.Repository.DoctorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -37,15 +39,15 @@ public class DoctorController {
 
     /**
      * GET /api/doctors
-     * Get all active doctors (for patients to browse)
+     * Get all active doctors as TherapistView (for patients to browse).
+     * Returns a flat list so the frontend can consume it directly.
      */
     @GetMapping
-    public ResponseEntity<PageResponse<Doctor>> getActiveDoctors(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("rating").descending());
-        Page<Doctor> doctorPage = doctorRepository.findByActive(true, pageable);
-        return ResponseEntity.ok(PageResponse.of(doctorPage));
+    public ResponseEntity<List<TherapistView>> getActiveDoctors() {
+        List<TherapistView> therapists = doctorRepository.findByActive(true).stream()
+                .map(TherapistView::from)
+                .toList();
+        return ResponseEntity.ok(therapists);
     }
 
     /**
