@@ -1,6 +1,8 @@
 package com.healthclub.Physioplus.Repository;
 
 import com.healthclub.Physioplus.Model.Bookings;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,14 +18,14 @@ import java.util.List;
 @Repository
 public interface BookingRepository extends MongoRepository<Bookings, String> {
 
-    // Spring Data MongoDB will automatically implement this method
-    // "Find all Bookings where the doctorId field matches the given doctorId"
+    // Non-paginated versions
     List<Bookings> findByDoctorId(String doctorId);
-
-    // "Find all Bookings where the patientId field matches the given patientId"
     List<Bookings> findByPatientId(String patientId);
 
-    // Example of a more complex query
-    // "Find all Bookings for a specific doctor at a specific time"
+    // Paginated versions
+    Page<Bookings> findByDoctorId(String doctorId, Pageable pageable);
+    Page<Bookings> findByPatientId(String patientId, Pageable pageable);
+
+    // Find bookings for a specific doctor at a specific time
     List<Bookings> findByDoctorIdAndAppointmentTime(String doctorId, java.time.LocalDateTime appointmentTime);
 }

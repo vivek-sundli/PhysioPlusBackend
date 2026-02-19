@@ -14,7 +14,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/video")
-@CrossOrigin(origins = "*")
 public class VideoController {
 
     private final VideoService videoService;

@@ -1,5 +1,7 @@
 package com.healthclub.Physioplus.Service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -8,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
+
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
 
     @Autowired(required = false)
     private JavaMailSender mailSender;
@@ -21,7 +25,7 @@ public class EmailService {
 
     public boolean sendOtp(String toEmail, String otp) {
         if (!isConfigured()) {
-            System.out.println("[DEV MODE] Email not configured. OTP for " + toEmail + ": " + otp);
+            log.info("[DEV MODE] Email not configured. OTP for {}: {}", toEmail, otp);
             return true;  // Return true in dev mode to allow testing
         }
         try {
@@ -33,7 +37,7 @@ public class EmailService {
             mailSender.send(message);
             return true;
         } catch (Exception e) {
-            System.err.println("Failed to send OTP email: " + e.getMessage());
+            log.error("Failed to send OTP email to {}: {}", toEmail, e.getMessage());
             return false;
         }
     }
@@ -55,7 +59,7 @@ public class EmailService {
 
     public boolean sendAppointmentReminder(String toEmail, String patientName, String doctorName, String appointmentTime) {
         if (!isConfigured()) {
-            System.out.println("[DEV MODE] Email not configured. Appointment reminder for " + toEmail);
+            log.info("[DEV MODE] Email not configured. Appointment reminder for {}", toEmail);
             return true;
         }
         try {
@@ -79,7 +83,7 @@ public class EmailService {
             mailSender.send(message);
             return true;
         } catch (Exception e) {
-            System.err.println("Failed to send appointment reminder: " + e.getMessage());
+            log.error("Failed to send appointment reminder to {}: {}", toEmail, e.getMessage());
             return false;
         }
     }

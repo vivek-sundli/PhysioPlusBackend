@@ -1,12 +1,12 @@
 package com.healthclub.Physioplus.Controller;
 
+import com.healthclub.Physioplus.Dto.PageResponse;
 import com.healthclub.Physioplus.Model.Patient;
 import com.healthclub.Physioplus.Service.PatientService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * REST controller for handling Patient CRUD operations.
@@ -26,17 +26,21 @@ public class PatientController {
      * POST /api/patients : Creates a new patient record.
      */
     @PostMapping
-    public ResponseEntity<Patient> createPatient(@RequestBody Patient patient) {
+    public ResponseEntity<Patient> createPatient(@Valid @RequestBody Patient patient) {
         Patient newPatient = patientService.createPatient(patient);
         return ResponseEntity.ok(newPatient);
     }
 
     /**
-     * GET /api/patients : Gets all patient records.
+     * GET /api/patients : Gets all patient records with pagination.
+     * @param page Page number (0-indexed), defaults to 0.
+     * @param size Page size, defaults to 20.
      */
     @GetMapping
-    public ResponseEntity<List<Patient>> getAllPatients() {
-        List<Patient> patients = patientService.getAllPatients();
+    public ResponseEntity<PageResponse<Patient>> getAllPatients(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        PageResponse<Patient> patients = patientService.getAllPatients(page, size);
         return ResponseEntity.ok(patients);
     }
 
@@ -64,7 +68,7 @@ public class PatientController {
      * PUT /api/patients/{id} : Updates an existing patient record.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Patient> updatePatient(@PathVariable String id, @RequestBody Patient patient) {
+    public ResponseEntity<Patient> updatePatient(@PathVariable String id, @Valid @RequestBody Patient patient) {
         return patientService.updatePatient(id, patient)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

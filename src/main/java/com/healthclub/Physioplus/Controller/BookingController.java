@@ -1,7 +1,9 @@
 package com.healthclub.Physioplus.Controller;
 
+import com.healthclub.Physioplus.Dto.PageResponse;
 import com.healthclub.Physioplus.Model.Bookings;
 import com.healthclub.Physioplus.Service.BookingService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,13 +34,9 @@ public class BookingController {
      * @return The created booking.
      */
     @PostMapping("/create")
-    public ResponseEntity<Bookings> createBooking(@RequestBody Bookings booking) {
-        try {
-            Bookings newBooking = bookingService.createBooking(booking);
-            return new ResponseEntity<>(newBooking, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<Bookings> createBooking(@Valid @RequestBody Bookings booking) {
+        Bookings newBooking = bookingService.createBooking(booking);
+        return new ResponseEntity<>(newBooking, HttpStatus.CREATED);
     }
 
     /**
@@ -58,25 +56,35 @@ public class BookingController {
 
     /**
      * GET /api/bookings/doctor/{doctorId}
-     * Gets all bookings for a specific doctor.
+     * Gets all bookings for a specific doctor with optional pagination.
      * @param doctorId The doctor's ID from the URL path.
-     * @return A list of bookings.
+     * @param page Page number (0-indexed), defaults to 0.
+     * @param size Page size, defaults to 20.
+     * @return A paginated list of bookings.
      */
     @GetMapping("/doctor/{doctorId}")
-    public ResponseEntity<List<Bookings>> getBookingsByDoctor(@PathVariable("doctorId") String doctorId) {
-        List<Bookings> bookings = bookingService.getBookingsForDoctor(doctorId);
+    public ResponseEntity<PageResponse<Bookings>> getBookingsByDoctor(
+            @PathVariable("doctorId") String doctorId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        PageResponse<Bookings> bookings = bookingService.getBookingsForDoctor(doctorId, page, size);
         return new ResponseEntity<>(bookings, HttpStatus.OK);
     }
 
     /**
      * GET /api/bookings/patient/{patientId}
-     * Gets all bookings for a specific patient.
+     * Gets all bookings for a specific patient with optional pagination.
      * @param patientId The patient's ID from the URL path.
-     * @return A list of bookings.
+     * @param page Page number (0-indexed), defaults to 0.
+     * @param size Page size, defaults to 20.
+     * @return A paginated list of bookings.
      */
     @GetMapping("/patient/{patientId}")
-    public ResponseEntity<List<Bookings>> getBookingsByPatient(@PathVariable("patientId") String patientId) {
-        List<Bookings> bookings = bookingService.getBookingsForPatient(patientId);
+    public ResponseEntity<PageResponse<Bookings>> getBookingsByPatient(
+            @PathVariable("patientId") String patientId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        PageResponse<Bookings> bookings = bookingService.getBookingsForPatient(patientId, page, size);
         return new ResponseEntity<>(bookings, HttpStatus.OK);
     }
 

@@ -1,6 +1,8 @@
 package com.healthclub.Physioplus.Repository;
 
 import com.healthclub.Physioplus.Model.NotificationLog;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,6 +19,10 @@ public interface NotificationRepository extends MongoRepository<NotificationLog,
     Optional<NotificationLog> findByMessageId(String messageId);
 
     List<NotificationLog> findByStatus(NotificationLog.DeliveryStatus status);
+
+    Page<NotificationLog> findByStatus(NotificationLog.DeliveryStatus status, Pageable pageable);
+
+    long countByStatus(NotificationLog.DeliveryStatus status);
 
     List<NotificationLog> findByRecipientPhone(String recipientPhone);
 

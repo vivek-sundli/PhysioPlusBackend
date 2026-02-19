@@ -1,10 +1,16 @@
 package com.healthclub.Physioplus.Service;
 
 import com.healthclub.Physioplus.Dto.BookingStatus;
+import com.healthclub.Physioplus.Dto.PageResponse;
 import com.healthclub.Physioplus.Model.Bookings;
 import com.healthclub.Physioplus.Repository.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +20,7 @@ import java.util.Optional;
  * It coordinates between the Controller and the Repository.
  */
 @Service
+@Transactional
 public class BookingService {
 
     private final BookingRepository bookingRepository;
@@ -50,8 +57,19 @@ public class BookingService {
      * @param doctorId The ID of the doctor.
      * @return A list of bookings.
      */
+    @Transactional(readOnly = true)
     public List<Bookings> getBookingsForDoctor(String doctorId) {
         return bookingRepository.findByDoctorId(doctorId);
+    }
+
+    /**
+     * Finds all bookings for a specific doctor with pagination.
+     */
+    @Transactional(readOnly = true)
+    public PageResponse<Bookings> getBookingsForDoctor(String doctorId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("appointmentTime").descending());
+        Page<Bookings> bookingsPage = bookingRepository.findByDoctorId(doctorId, pageable);
+        return PageResponse.of(bookingsPage);
     }
 
     /**
@@ -59,8 +77,19 @@ public class BookingService {
      * @param patientId The ID of the patient.
      * @return A list of bookings.
      */
+    @Transactional(readOnly = true)
     public List<Bookings> getBookingsForPatient(String patientId) {
         return bookingRepository.findByPatientId(patientId);
+    }
+
+    /**
+     * Finds all bookings for a specific patient with pagination.
+     */
+    @Transactional(readOnly = true)
+    public PageResponse<Bookings> getBookingsForPatient(String patientId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("appointmentTime").descending());
+        Page<Bookings> bookingsPage = bookingRepository.findByPatientId(patientId, pageable);
+        return PageResponse.of(bookingsPage);
     }
 
     /**

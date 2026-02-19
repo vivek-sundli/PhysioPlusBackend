@@ -1,10 +1,14 @@
 package com.healthclub.Physioplus.Service;
 
 import com.healthclub.Physioplus.Dto.OnboardingResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class OnboardingService {
+
+    private static final Logger log = LoggerFactory.getLogger(OnboardingService.class);
 
     // You would typically inject a Repository here, e.g., UserRepository
     // @Autowired
@@ -19,7 +23,7 @@ public class OnboardingService {
         // user.setOnboardingStep(1);
         // userRepository.save(user);
 
-        System.out.println("Onboarding started for User ID: " + userId);
+        log.info("Onboarding started for User ID: {}", userId);
 
         // 3. Return response with next steps or success status
         return new OnboardingResponse(

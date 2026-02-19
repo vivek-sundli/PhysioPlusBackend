@@ -26,18 +26,22 @@ public class Bookings {
 
     private String patientName;
     private String patientId; // ID of the user making the booking
-    private String doctorId;  // ID of the doctor being booked
+    private String doctorId; // ID of the doctor being booked
     private LocalDateTime appointmentTime;
     private BookingStatus status;
     private String notes;
     private Mode mode;
     private String mailId;
 
+    @org.springframework.data.annotation.LastModifiedDate
+    private java.time.Instant updatedAt;
+
     // Constructors
     public Bookings() {
     }
 
-    public Bookings(String patientName, String patientId, String doctorId, LocalDateTime appointmentTime, String notes,String mailId) {
+    public Bookings(String patientName, String patientId, String doctorId, LocalDateTime appointmentTime, String notes,
+            String mailId) {
         this.patientName = patientName;
         this.patientId = patientId;
         this.doctorId = doctorId;

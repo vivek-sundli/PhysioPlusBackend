@@ -1,5 +1,6 @@
 package com.healthclub.Physioplus.Controller;
 
+import com.healthclub.Physioplus.Dto.PageResponse;
 import com.healthclub.Physioplus.Dto.PaymentOrderRequest;
 import com.healthclub.Physioplus.Dto.PaymentOrderResponse;
 import com.healthclub.Physioplus.Dto.PaymentVerifyRequest;
@@ -19,7 +20,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/payments")
-@CrossOrigin(origins = "*")
 public class PaymentController {
 
     private final PaymentService paymentService;
@@ -35,7 +35,7 @@ public class PaymentController {
      * POST /api/payments : Creates a new payment (initiates it).
      */
     @PostMapping
-    public ResponseEntity<Payment> createPayment(@RequestBody Payment payment) {
+    public ResponseEntity<Payment> createPayment(@Valid @RequestBody Payment payment) {
         Payment newPayment = paymentService.createPayment(payment);
         return ResponseEntity.ok(newPayment);
     }
@@ -51,20 +51,30 @@ public class PaymentController {
     }
 
     /**
-     * GET /api/payments/user/{userId} : Gets all payments for a specific user.
+     * GET /api/payments/user/{userId} : Gets all payments for a specific user with pagination.
+     * @param page Page number (0-indexed), defaults to 0.
+     * @param size Page size, defaults to 20.
      */
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Payment>> getPaymentsByUserId(@PathVariable String userId) {
-        List<Payment> payments = paymentService.getPaymentsByUserId(userId);
+    public ResponseEntity<PageResponse<Payment>> getPaymentsByUserId(
+            @PathVariable String userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        PageResponse<Payment> payments = paymentService.getPaymentsByUserId(userId, page, size);
         return ResponseEntity.ok(payments);
     }
 
     /**
-     * GET /api/payments/doctor/{doctorId} : Gets all payments for a specific doctor.
+     * GET /api/payments/doctor/{doctorId} : Gets all payments for a specific doctor with pagination.
+     * @param page Page number (0-indexed), defaults to 0.
+     * @param size Page size, defaults to 20.
      */
     @GetMapping("/doctor/{doctorId}")
-    public ResponseEntity<List<Payment>> getPaymentsByDoctorId(@PathVariable String doctorId) {
-        List<Payment> payments = paymentService.getPaymentsByDoctorId(doctorId);
+    public ResponseEntity<PageResponse<Payment>> getPaymentsByDoctorId(
+            @PathVariable String doctorId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        PageResponse<Payment> payments = paymentService.getPaymentsByDoctorId(doctorId, page, size);
         return ResponseEntity.ok(payments);
     }
 

@@ -34,7 +34,7 @@ public class NotificationLog {
 
     private String templateName;
 
-    private String messageId;  // WhatsApp message ID
+    private String messageId; // WhatsApp message ID
 
     private DeliveryStatus status;
 
@@ -57,12 +57,20 @@ public class NotificationLog {
         this.channel = NotificationChannel.WHATSAPP;
     }
 
+    @Indexed
+    private String recipientId;
+
+    private String title;
+
+    private String message;
+
     public enum NotificationType {
         BOOKING_CONFIRMATION,
         APPOINTMENT_REMINDER,
         PAYMENT_CONFIRMATION,
         PRESCRIPTION,
-        CUSTOM
+        CUSTOM,
+        SYSTEM_ALERT
     }
 
     public enum NotificationChannel {
@@ -72,10 +80,10 @@ public class NotificationLog {
     }
 
     public enum DeliveryStatus {
-        PENDING,    // Initial state
-        SENT,       // Message sent to provider
-        DELIVERED,  // Message delivered to recipient
-        READ,       // Message read by recipient
-        FAILED      // Message failed to send
+        PENDING, // Initial state
+        SENT, // Message sent to provider
+        DELIVERED, // Message delivered to recipient
+        READ, // Message read by recipient
+        FAILED // Message failed to send
     }
 }

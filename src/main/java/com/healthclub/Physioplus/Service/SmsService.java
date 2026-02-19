@@ -1,5 +1,7 @@
 package com.healthclub.Physioplus.Service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -13,6 +15,8 @@ import java.util.Map;
 
 @Service
 public class SmsService {
+
+    private static final Logger log = LoggerFactory.getLogger(SmsService.class);
 
     @Value("${msg91.auth-key:}")
     private String authKey;
@@ -37,7 +41,7 @@ public class SmsService {
 
     public boolean sendOtp(String phoneNumber, String otp) {
         if (!isConfigured()) {
-            System.out.println("[DEV MODE] SMS not configured. OTP for " + phoneNumber + ": " + otp);
+            log.info("[DEV MODE] SMS not configured. OTP for {}: {}", phoneNumber, otp);
             return true;  // Return true in dev mode to allow testing
         }
         try {
@@ -65,7 +69,7 @@ public class SmsService {
             restTemplate.postForEntity(MSG91_API_URL, entity, String.class);
             return true;
         } catch (Exception e) {
-            System.err.println("Failed to send OTP SMS: " + e.getMessage());
+            log.error("Failed to send OTP SMS to {}: {}", phoneNumber, e.getMessage());
             return false;
         }
     }
@@ -82,7 +86,7 @@ public class SmsService {
 
     public boolean sendAppointmentReminder(String phoneNumber, String patientName, String doctorName, String appointmentTime) {
         if (!isConfigured()) {
-            System.out.println("[DEV MODE] SMS not configured. Appointment reminder for " + phoneNumber);
+            log.info("[DEV MODE] SMS not configured. Appointment reminder for {}", phoneNumber);
             return true;
         }
         try {
@@ -109,7 +113,7 @@ public class SmsService {
             restTemplate.postForEntity(MSG91_API_URL, entity, String.class);
             return true;
         } catch (Exception e) {
-            System.err.println("Failed to send appointment reminder SMS: " + e.getMessage());
+            log.error("Failed to send appointment reminder SMS to {}: {}", phoneNumber, e.getMessage());
             return false;
         }
     }

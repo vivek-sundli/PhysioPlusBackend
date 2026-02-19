@@ -10,6 +10,8 @@ import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
 import com.razorpay.Utils;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,8 @@ import java.util.UUID;
 
 @Service
 public class RazorpayService {
+
+    private static final Logger log = LoggerFactory.getLogger(RazorpayService.class);
 
     @Value("${razorpay.key-id:}")
     private String keyId;
@@ -40,13 +44,13 @@ public class RazorpayService {
     @PostConstruct
     public void init() {
         if (!isConfigured()) {
-            System.out.println("[DEV MODE] Razorpay not configured. Payment features will work in mock mode.");
+            log.info("[DEV MODE] Razorpay not configured. Payment features will work in mock mode.");
             return;
         }
         try {
             this.razorpayClient = new RazorpayClient(keyId, keySecret);
         } catch (RazorpayException e) {
-            System.err.println("Failed to initialize Razorpay client: " + e.getMessage());
+            log.error("Failed to initialize Razorpay client: {}", e.getMessage());
         }
     }
 
@@ -72,7 +76,7 @@ public class RazorpayService {
             payment.setStatus(Payment.PaymentStatus.CREATED);
             payment.setPaymentTime(LocalDateTime.now());
             Payment savedPayment = paymentRepository.save(payment);
-            System.out.println("[DEV MODE] Mock Razorpay order created: " + mockOrderId);
+            log.info("[DEV MODE] Mock Razorpay order created: {}", mockOrderId);
             return PaymentOrderResponse.success(mockOrderId, savedPayment.getId(), request.getAmount(),
                     request.getCurrency() != null ? request.getCurrency() : "INR", "rzp_test_mock");
         }
@@ -139,7 +143,7 @@ public class RazorpayService {
             payment.setStatus(Payment.PaymentStatus.COMPLETED);
             payment.setPaymentTime(LocalDateTime.now());
             paymentRepository.save(payment);
-            System.out.println("[DEV MODE] Mock payment verified: " + request.getRazorpayOrderId());
+            log.info("[DEV MODE] Mock payment verified: {}", request.getRazorpayOrderId());
             return new PaymentOrderResponse(true, "Payment verified successfully (mock mode)");
         }
         try {

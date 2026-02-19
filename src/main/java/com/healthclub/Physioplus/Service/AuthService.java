@@ -6,11 +6,13 @@ import com.healthclub.Physioplus.Model.User;
 import com.healthclub.Physioplus.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -25,6 +27,10 @@ public class AuthService {
     }
 
     public AuthResponse sendOtp(SendOtpRequest request) {
+        if (request.getType() == null || request.getType().isBlank()) {
+            return AuthResponse.error("OTP type is required. Use EMAIL or SMS");
+        }
+
         OtpType otpType;
         try {
             otpType = OtpType.valueOf(request.getType().toUpperCase());

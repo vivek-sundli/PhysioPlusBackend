@@ -5,6 +5,8 @@ import com.healthclub.Physioplus.Dto.SendNotificationRequest;
 import com.healthclub.Physioplus.Model.NotificationLog;
 import com.healthclub.Physioplus.Service.WhatsAppService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +17,9 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*")
 public class WebhookController {
+
+    private static final Logger log = LoggerFactory.getLogger(WebhookController.class);
 
     @Value("${whatsapp.verify-token}")
     private String verifyToken;
@@ -174,7 +177,7 @@ public class WebhookController {
             return ResponseEntity.ok("EVENT_RECEIVED");
 
         } catch (Exception e) {
-            System.err.println("Error processing webhook: " + e.getMessage());
+            log.error("Error processing webhook: {}", e.getMessage());
             return ResponseEntity.ok("EVENT_RECEIVED");  // Always return 200 to acknowledge
         }
     }
@@ -206,7 +209,7 @@ public class WebhookController {
                 String type = (String) message.get("type");
 
                 // Log or process incoming message
-                System.out.println("Received message from " + from + ": " + messageId + " (" + type + ")");
+                log.info("Received message from {}: {} ({})", from, messageId, type);
 
                 // You can add custom handling for incoming messages here
                 // e.g., auto-reply, trigger workflows, etc.

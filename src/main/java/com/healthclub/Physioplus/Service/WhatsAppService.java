@@ -4,6 +4,8 @@ import com.healthclub.Physioplus.Dto.NotificationResponse;
 import com.healthclub.Physioplus.Dto.SendNotificationRequest;
 import com.healthclub.Physioplus.Model.NotificationLog;
 import com.healthclub.Physioplus.Repository.NotificationRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -15,6 +17,8 @@ import java.util.*;
 
 @Service
 public class WhatsAppService {
+
+    private static final Logger log = LoggerFactory.getLogger(WhatsAppService.class);
 
     @Value("${whatsapp.token:}")
     private String accessToken;
@@ -54,7 +58,7 @@ public class WhatsAppService {
             notification.setCreatedAt(Instant.now());
             notification.setUpdatedAt(Instant.now());
             NotificationLog saved = notificationRepository.save(notification);
-            System.out.println("[DEV MODE] WhatsApp not configured. Mock message to " + request.getRecipientPhone());
+            log.info("[DEV MODE] WhatsApp not configured. Mock message to {}", request.getRecipientPhone());
             return NotificationResponse.success("Message sent (mock mode)", saved.getMessageId(), saved);
         }
         try {
@@ -158,7 +162,7 @@ public class WhatsAppService {
             notification.setMessageId("mock_msg_" + java.util.UUID.randomUUID().toString().substring(0, 8));
             notification.setCreatedAt(Instant.now());
             NotificationLog saved = notificationRepository.save(notification);
-            System.out.println("[DEV MODE] WhatsApp text message to " + recipientPhone + ": " + message);
+            log.info("[DEV MODE] WhatsApp text message to {}: {}", recipientPhone, message);
             return NotificationResponse.success("Message sent (mock mode)", saved.getMessageId(), saved);
         }
         try {

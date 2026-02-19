@@ -1,7 +1,8 @@
 package com.healthclub.Physioplus.Repository;
 
-
 import com.healthclub.Physioplus.Model.Payment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,19 +15,13 @@ import java.util.Optional;
 @Repository
 public interface PaymentRepository extends MongoRepository<Payment, String> {
 
-    /**
-     * Finds all payments made by a specific user.
-     * @param userId The ID of the user.
-     * @return A list of payments.
-     */
+    // Non-paginated versions
     List<Payment> findByUserId(String userId);
-
-    /**
-     * Finds all payments received by a specific doctor.
-     * @param doctorId The ID of the doctor.
-     * @return A list of payments.
-     */
     List<Payment> findByDoctorId(String doctorId);
+
+    // Paginated versions
+    Page<Payment> findByUserId(String userId, Pageable pageable);
+    Page<Payment> findByDoctorId(String doctorId, Pageable pageable);
 
     /**
      * Finds a payment associated with a specific booking.

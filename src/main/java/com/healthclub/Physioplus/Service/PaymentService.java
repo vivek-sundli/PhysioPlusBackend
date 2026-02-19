@@ -1,10 +1,15 @@
 package com.healthclub.Physioplus.Service;
 
-
+import com.healthclub.Physioplus.Dto.PageResponse;
 import com.healthclub.Physioplus.Model.Payment;
 import com.healthclub.Physioplus.Repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,6 +19,7 @@ import java.util.Optional;
  * Service class for handling payment-related business logic.
  */
 @Service
+@Transactional
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
@@ -55,6 +61,7 @@ public class PaymentService {
      * @param paymentId The ID of the payment.
      * @return An Optional containing the payment if found.
      */
+    @Transactional(readOnly = true)
     public Optional<Payment> getPaymentById(String paymentId) {
         return paymentRepository.findById(paymentId);
     }
@@ -64,8 +71,19 @@ public class PaymentService {
      * @param userId The ID of the user.
      * @return A list of payments.
      */
+    @Transactional(readOnly = true)
     public List<Payment> getPaymentsByUserId(String userId) {
         return paymentRepository.findByUserId(userId);
+    }
+
+    /**
+     * Retrieves all payments for a specific user with pagination.
+     */
+    @Transactional(readOnly = true)
+    public PageResponse<Payment> getPaymentsByUserId(String userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("paymentTime").descending());
+        Page<Payment> paymentPage = paymentRepository.findByUserId(userId, pageable);
+        return PageResponse.of(paymentPage);
     }
 
     /**
@@ -73,8 +91,19 @@ public class PaymentService {
      * @param doctorId The ID of the doctor.
      * @return A list of payments.
      */
+    @Transactional(readOnly = true)
     public List<Payment> getPaymentsByDoctorId(String doctorId) {
         return paymentRepository.findByDoctorId(doctorId);
+    }
+
+    /**
+     * Retrieves all payments for a specific doctor with pagination.
+     */
+    @Transactional(readOnly = true)
+    public PageResponse<Payment> getPaymentsByDoctorId(String doctorId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("paymentTime").descending());
+        Page<Payment> paymentPage = paymentRepository.findByDoctorId(doctorId, pageable);
+        return PageResponse.of(paymentPage);
     }
 
     /**
@@ -82,6 +111,7 @@ public class PaymentService {
      * @param bookingId The ID of the booking.
      * @return A list of payments.
      */
+    @Transactional(readOnly = true)
     public List<Payment> getPaymentsByBookingId(String bookingId) {
         return paymentRepository.findByBookingId(bookingId);
     }
