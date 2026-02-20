@@ -28,6 +28,18 @@ public class BookingController {
     }
 
     /**
+     * GET /api/bookings
+     * Gets all bookings with pagination.
+     */
+    @GetMapping
+    public ResponseEntity<PageResponse<Bookings>> getAllBookings(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        PageResponse<Bookings> bookings = bookingService.getAllBookings(page, size);
+        return new ResponseEntity<>(bookings, HttpStatus.OK);
+    }
+
+    /**
      * POST /api/bookings
      * Creates a new booking.
      * @param booking The booking data from the request body.

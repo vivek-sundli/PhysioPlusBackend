@@ -53,6 +53,16 @@ public class BookingService {
     }
 
     /**
+     * Gets all bookings with pagination.
+     */
+    @Transactional(readOnly = true)
+    public PageResponse<Bookings> getAllBookings(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("appointmentTime").descending());
+        Page<Bookings> bookingsPage = bookingRepository.findAll(pageable);
+        return PageResponse.of(bookingsPage);
+    }
+
+    /**
      * Finds all bookings for a specific doctor.
      * @param doctorId The ID of the doctor.
      * @return A list of bookings.
